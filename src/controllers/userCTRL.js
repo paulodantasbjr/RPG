@@ -8,7 +8,7 @@ const { loginSchema } = require("../helpers/loginValidation");
 
 //funcao para criar o token de 1d
 const createToken = (User) => {
-  return jwt.sign(User, process.env.CREATETOKEN, { expiresIn: "1d" });
+  return jwt.sign(User, process.env.TOKEN_SECRET, { expiresIn: "1d" });
 };
 
 //funcao para criar o token de 7d
@@ -44,7 +44,7 @@ module.exports = {
       const userRefreshToken = createRefreshToken({ id: user._id });
 
       //crian um cookie para armazenar os dados
-      res.cookie("refreshToken", userRefreshToken, {
+      res.cookie("auth-token", userRefreshToken, {
         httpOnly: true,
         path: "/user/refresh_token",
         maxAge: 7 * 24 * 60 * 60 * 1000, //7dias
@@ -68,10 +68,18 @@ module.exports = {
       //verificando se é a mesma senha
       const validPass = await bcrypt.compare(password, user.password);
       if (!validPass) return res.status(400).json({ msg: "Invalid password" });
+    
+      //criando e verificando token
+      const userAccessToken = createToken({ id: user._id });
+      const userRefreshToken = createRefreshToken({ id: user._id });
 
-    //   testando o jwt
-    //   const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET);
-    //   res.header("auth-token", token).send(token);
+      res.cookie("auth-token", userRefreshToken, {
+        httpOnly: true,
+        path: "/user/refresh_token",
+        maxAge: 7 * 24 * 60 * 60 * 1000, //7dias
+      });
+
+      return res.status(200).json({msg: 'logged in!'})
     } catch (err) {
       return res.status(400).json({ msg: err.message });
     }
