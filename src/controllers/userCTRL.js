@@ -84,4 +84,18 @@ module.exports = {
       return res.status(400).json({ msg: err.message })
     }
   },
+<<<<<<< HEAD
 }
+=======
+  getLogout: async (req, res) => {
+    try {
+      //limpar o cookie do navegador
+      res.clearCookie("auth-token", { path: '/user/refresh_token' });
+
+      return res.json({ msg: 'logout done' });
+    } catch (error) {
+      return res.json({ msg: error.message });
+    }
+  },
+};
+>>>>>>> e61d2ab114b1e2301b4c0c6498d77417c3f35cf9
